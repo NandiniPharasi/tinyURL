@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TinyURL Stats</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-3xl font-bold mb-4">Stats</h1>
+
+    <a href="/" class="text-blue-600 underline">← Back to Dashboard</a>
+
+    <div id="details" class="mt-4"></div>
+
+    <h2 class="text-2xl font-bold mt-6 mb-2">Clicks</h2>
+    <table class="w-full border">
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="border p-2">Time</th>
+          <th class="border p-2">IP</th>
+          <th class="border p-2">User Agent</th>
+        </tr>
+      </thead>
+      <tbody id="clicksTable"></tbody>
+    </table>
+  </div>
+
+<script>
+const code = window.location.pathname.split("/").pop();
+
+async function loadStats() {
+  const res = await fetch(`/api/links/${code}/stats`);
+  const data = await res.json();
+
+  document.getElementById("details").innerHTML = `
+    <p><strong>Code:</strong> ${data.code}</p>
+    <p><strong>URL:</strong> ${data.url}</p>
+    <p><strong>Total Visits:</strong> ${data.visits}</p>
+  `;
+
+  const table = document.getElementById("clicksTable");
+  table.innerHTML = "";
+
+  data.clicks.forEach(c => {
+    table.innerHTML += `
+      <tr>
+        <td class="border p-2">${c.occurred_at}</td>
+        <td class="border p-2">${c.ip}</td>
+        <td class="border p-2">${c.user_agent}</td>
+      </tr>
+    `;
+  });
+}
+
+loadStats();
+</script>
+
+</body>
+</html>

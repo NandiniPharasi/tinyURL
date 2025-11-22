@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TinyURL Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+  <div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-lg shadow">
+    <h1 class="text-3xl font-bold mb-4">TinyURL</h1>
+
+    <!-- Create URL Form -->
+    <form id="createForm" class="space-y-3">
+      <input id="urlInput" class="w-full border p-2 rounded" type="text" placeholder="Enter long URL" required>
+
+      <input id="customCodeInput" class="w-full border p-2 rounded" type="text"
+             placeholder="Custom code (optional)">
+
+      <button type="submit"
+              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Create Short URL
+      </button>
+    </form>
+
+    <!-- Result -->
+    <p id="result" class="mt-4 font-semibold text-green-700"></p>
+
+    <hr class="my-6">
+
+    <h2 class="text-2xl font-bold mb-3">All Links</h2>
+    <table class="w-full border">
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="border p-2">Code</th>
+          <th class="border p-2">URL</th>
+          <th class="border p-2">Visits</th>
+          <th class="border p-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="linksTable"></tbody>
+    </table>
+  </div>
+
+<script>
+// Load all links
+async function loadLinks() {
+  const res = await fetch("/api/links");
+  const links = await res.json();
+
+  const table = document.getElementById("linksTable");
+  table.innerHTML = "";
+
+  links.forEach(link => {
+    table.innerHTML += `
+      <tr>
+        <td class="border p-2">
+          <a href="/${link.code}" class="text-blue-600 underline">${link.code}</a>
+        </td>
+        <td class="border p-2">${link.url}</td>
+        <td class="border p-2">${link.visits}</td>
+        <td class="border p-2">
+         <a href="/code/${link.code}" class="text-green-600 underline">Stats</a>
+
+          <button class="text-red-600" onclick="deleteLink('${link.code}')">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+// Create short URL
+document.getElementById("createForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const url = document.getElementById("urlInput").value;
+  const customCode = document.getElementById("customCodeInput").value;
+
+  const res = await fetch("/api/links", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url, customCode })
+  });
+
+  const data = await res.json();
+
+  if (res.status === 200) {
+    document.getElementById("result").innerText =
+      `Short URL created: ${data.shortUrl}`;
+    loadLinks();
+  } else {
+    document.getElementById("result").innerText =
+      "Error: " + data.error;
+  }
+});
+
+// Delete link
+async function deleteLink(code) {
+  if (!confirm("Delete this short link?")) return;
+
+  await fetch(`/api/links/${code}`, { method: "DELETE" });
+  loadLinks();
+}
+
+// Load list initially
+loadLinks();
+</script>
+</body>
+</html>
