@@ -66,7 +66,8 @@ const nanoid = customAlphabet(
 
 // Health check
 app.get("/healthz", (req, res) => {
-  res.json({ ok: true });
+  res.json({ ok: true,
+           "version" : "1.0"});
 });
 
 // Create short URL
