@@ -5,26 +5,42 @@
   <title>TinyURL Stats</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-6">
+<body class="bg-gray-50 min-h-screen p-8">
 
-  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-3xl font-bold mb-4">Stats</h1>
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-4xl font-extrabold tracking-tight text-gray-800">📊 Stats</h1>
+      <a href="/" class="text-blue-600 hover:text-blue-700 text-lg font-medium transition">
+        ← Back to Dashboard
+      </a>
+    </div>
 
-    <a href="/" class="text-blue-600 underline">← Back to Dashboard</a>
+    <!-- Card -->
+    <div class="bg-white shadow-lg rounded-xl p-6 border border-gray-200">
+      
+      <!-- URL Details -->
+      <div id="details" class="space-y-2 text-gray-700 text-lg mb-6"></div>
 
-    <div id="details" class="mt-4"></div>
+      <!-- Click Table -->
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">Click History</h2>
 
-    <h2 class="text-2xl font-bold mt-6 mb-2">Clicks</h2>
-    <table class="w-full border">
-      <thead class="bg-gray-200">
-        <tr>
-          <th class="border p-2">Time</th>
-          <th class="border p-2">IP</th>
-          <th class="border p-2">User Agent</th>
-        </tr>
-      </thead>
-      <tbody id="clicksTable"></tbody>
-    </table>
+      <div class="overflow-hidden rounded-lg border border-gray-300 shadow-sm">
+        <table class="w-full border-collapse">
+          <thead class="bg-gray-100 text-gray-700">
+            <tr>
+              <th class="border p-3 text-left font-semibold">Time</th>
+              <th class="border p-3 text-left font-semibold">IP Address</th>
+              <th class="border p-3 text-left font-semibold">User Agent</th>
+            </tr>
+          </thead>
+          <tbody id="clicksTable" class="bg-white"></tbody>
+        </table>
+      </div>
+
+    </div>
+
   </div>
 
 <script>
@@ -35,9 +51,19 @@ async function loadStats() {
   const data = await res.json();
 
   document.getElementById("details").innerHTML = `
-    <p><strong>Code:</strong> ${data.code}</p>
-    <p><strong>URL:</strong> ${data.url}</p>
-    <p><strong>Total Visits:</strong> ${data.visits}</p>
+    <p><strong class="text-gray-900">Short Code:</strong> 
+      <span class="text-blue-700 font-semibold">${data.code}</span>
+    </p>
+
+    <p><strong class="text-gray-900">Original URL:</strong> 
+      <a href="${data.url}" target="_blank" class="text-blue-600 underline hover:text-blue-700">
+        ${data.url}
+      </a>
+    </p>
+
+    <p><strong class="text-gray-900">Total Visits:</strong> 
+      <span class="text-green-700 font-bold">${data.visits}</span>
+    </p>
   `;
 
   const table = document.getElementById("clicksTable");
@@ -45,10 +71,10 @@ async function loadStats() {
 
   data.clicks.forEach(c => {
     table.innerHTML += `
-      <tr>
-        <td class="border p-2">${c.occurred_at}</td>
-        <td class="border p-2">${c.ip}</td>
-        <td class="border p-2">${c.user_agent}</td>
+      <tr class="hover:bg-gray-50 transition">
+        <td class="border p-3">${c.occurred_at}</td>
+        <td class="border p-3">${c.ip}</td>
+        <td class="border p-3">${c.user_agent}</td>
       </tr>
     `;
   });
